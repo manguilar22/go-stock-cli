@@ -28,5 +28,4 @@ func main() {
 
 	fileName := fmt.Sprintf("%s_%s_%s_%s.csv", symbol, period1, period2, interval)
 	_ = stock.SaveToCSV(symbol, period1, period2, interval, fileName)
-
 }
