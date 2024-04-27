@@ -18,10 +18,24 @@ type StockData struct {
 	Volume string `json:"volume"`
 }
 
+func doesFolderExist(filepath string) error {
+	_, err := os.Stat(filepath)
+
+	if err != nil {
+		fmt.Println("data/csv folder does not exist.")
+		_ = os.Mkdir(filepath, 0777)
+	}
+
+	return err
+}
+
 func SaveToCSV(stockSymbol, period1, period2, interval, fileName string) error {
+	_ = doesFolderExist("data/csv")
+
 	records, _ := GetStock(stockSymbol, period1, period2, interval)
 
-	file, err := os.Create(fmt.Sprintf("data/csv/%s", fileName))
+	var filepath string = fmt.Sprintf("data/csv/%s", fileName)
+	file, err := os.Create(filepath)
 	if err != nil {
 		return err
 	}
@@ -54,6 +68,7 @@ func SaveToCSV(stockSymbol, period1, period2, interval, fileName string) error {
 			return err
 		}
 	}
+	fmt.Println("Saved file: ", filepath)
 
 	return nil
 }
