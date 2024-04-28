@@ -68,7 +68,6 @@ func SaveToCSV(stockSymbol, period1, period2, interval, fileName string) error {
 			return err
 		}
 	}
-	fmt.Println("Saved file: ", filepath)
 
 	return nil
 }

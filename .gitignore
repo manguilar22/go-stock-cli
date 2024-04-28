@@ -3,6 +3,7 @@
 #
 .idea
 data/csv/*
+data/me.json
 # Binaries for programs and plugins
 *.exe
 *.exe~
