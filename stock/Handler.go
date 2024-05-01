@@ -32,7 +32,11 @@ func doesFolderExist(filepath string) error {
 func SaveToCSV(stockSymbol, period1, period2, interval, fileName string) error {
 	_ = doesFolderExist("data/csv")
 
-	records, _ := GetStock(stockSymbol, period1, period2, interval)
+	records, err := GetStock(stockSymbol, period1, period2, interval)
+
+	if err != nil {
+		return fmt.Errorf("(NYSE:%s) does not exist: error=%s", stockSymbol, err.Error())
+	}
 
 	var filepath string = fmt.Sprintf("data/csv/%s", fileName)
 	file, err := os.Create(filepath)
@@ -83,9 +87,9 @@ func GetStock(stockSymbol, period1, period2, interval string) ([]StockData, erro
 	log.Println(fmt.Sprintf("stocKSymbol=%s, url=%s", stockSymbol, url))
 
 	resp, err := http.Get(url)
-	if err != nil {
-		log.Fatalln(fmt.Sprintf("error=%s", err))
-		return nil, err
+	if err != nil || resp.StatusCode != 200 {
+		return nil, fmt.Errorf("stockSymbol=%s,period1=%s,period2=%s,interval=%s,error=%s,status=%s,statusCode=%d",
+			stockSymbol, period1, period2, interval, err, resp.Status, resp.StatusCode)
 	}
 	defer resp.Body.Close()
 

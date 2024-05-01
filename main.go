@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/manguilar22/go-stock-cli/stock"
+	"log"
 	"os"
 )
 
@@ -27,5 +28,9 @@ func main() {
 	}
 
 	fileName := fmt.Sprintf("%s_%s_%s_%s.csv", symbol, period1, period2, interval)
-	_ = stock.SaveToCSV(symbol, period1, period2, interval, fileName)
+	err := stock.SaveToCSV(symbol, period1, period2, interval, fileName)
+	if err != nil {
+		log.Println(err)
+	}
+
 }
