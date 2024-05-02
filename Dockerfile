@@ -7,7 +7,9 @@ WORKDIR /app
 RUN ["mkdir", "-p", "data/csv"]
 
 # Copy the local package files to the container's workspace
-COPY . .
+COPY stock/ stock/
+COPY main.go .
+COPY go.mod .
 
 # Download project dependencies
 RUN ["go", "mod", "download"]

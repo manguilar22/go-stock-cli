@@ -88,8 +88,8 @@ func GetStock(stockSymbol, period1, period2, interval string) ([]StockData, erro
 
 	resp, err := http.Get(url)
 	if err != nil || resp.StatusCode != 200 {
-		return nil, fmt.Errorf("stockSymbol=%s,period1=%s,period2=%s,interval=%s,error=%s,status=%s,statusCode=%d",
-			stockSymbol, period1, period2, interval, err, resp.Status, resp.StatusCode)
+		return nil, fmt.Errorf("stockSymbol=%s,period1=%s,period2=%s,interval=%s,url=%s,error=%s,status=%s",
+			stockSymbol, period1, period2, interval, url, err.Error(), resp.Status)
 	}
 	defer resp.Body.Close()
 

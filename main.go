@@ -27,7 +27,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	fileName := fmt.Sprintf("%s_%s_%s_%s.csv", symbol, period1, period2, interval)
+	fileName := fmt.Sprintf("%s.csv", symbol)
 	err := stock.SaveToCSV(symbol, period1, period2, interval, fileName)
 	if err != nil {
 		log.Println(err)
