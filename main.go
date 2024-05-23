@@ -12,12 +12,14 @@ var symbol string
 var period1 string
 var period2 string
 var interval string
+var filename string
 
 func init() {
-	flag.StringVar(&symbol, "symbol", "Symbol", "Stock Ticker Symbol")
-	flag.StringVar(&period1, "period1", "Period1", "Start timestamp UNIX")
-	flag.StringVar(&period2, "period2", "Period2", "End Timestamp UNIX")
-	flag.StringVar(&interval, "interval", "Interval", "Time Interval")
+	flag.StringVar(&symbol, "symbol", "", "Stock Ticker Symbol")
+	flag.StringVar(&period1, "period1", "", "Start timestamp UNIX")
+	flag.StringVar(&period2, "period2", "", "End Timestamp UNIX")
+	flag.StringVar(&interval, "interval", "", "Time Interval")
+	flag.StringVar(&filename, "filename", "", "JSON Filename")
 	flag.Parse()
 }
 
@@ -27,10 +29,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	fileName := fmt.Sprintf("%s.csv", symbol)
-	err := stock.SaveToCSV(symbol, period1, period2, interval, fileName)
-	if err != nil {
-		log.Println(err)
+	if filename != "" && period1 != "" && period2 != "" && interval != "" {
+		log.Printf("filename=%s,period1=%s,period2=%s,interal=%s", filename, period1, period2, interval)
+		stock.ProcessFile(filename, period1, period2, interval)
+	}
+
+	if symbol != "" && period1 != "" && period2 != "" && interval != "" {
+		err := stock.SaveToCSV(symbol, period1, period2, interval)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 
 }

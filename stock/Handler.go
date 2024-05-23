@@ -2,11 +2,13 @@ package stock
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"sync"
 )
 
 type StockData struct {
@@ -16,6 +18,34 @@ type StockData struct {
 	Low    string `json:"low"`
 	Close  string `json:"close"`
 	Volume string `json:"volume"`
+}
+
+func ProcessFile(filename, period1, period2, interval string) {
+	fileData, err := os.ReadFile(filename)
+
+	if err != nil {
+		log.Printf("Was not able to read JSON file: %s", err.Error())
+	}
+
+	var data []interface{}
+	_ = json.Unmarshal(fileData, &data)
+
+	var wg sync.WaitGroup
+	for _, record := range data {
+		wg.Add(1)
+
+		symbol := record.(map[string]interface{})["symbol"].(string)
+
+		go func() {
+			defer wg.Done()
+			err := SaveToCSV(symbol, period1, period2, interval)
+
+			if err != nil {
+				log.Printf("Error processing file: filename=%s, error=%s", filename, err.Error())
+			}
+		}()
+		wg.Wait()
+	}
 }
 
 func doesFolderExist(filepath string) error {
@@ -29,9 +59,9 @@ func doesFolderExist(filepath string) error {
 	return err
 }
 
-func SaveToCSV(stockSymbol, period1, period2, interval, fileName string) error {
+func SaveToCSV(stockSymbol, period1, period2, interval string) error {
 	_ = doesFolderExist("data/csv")
-
+	fileName := fmt.Sprintf("%s.csv", stockSymbol)
 	records, err := GetStock(stockSymbol, period1, period2, interval)
 
 	if err != nil {
@@ -87,9 +117,9 @@ func GetStock(stockSymbol, period1, period2, interval string) ([]StockData, erro
 	log.Println(fmt.Sprintf("stocKSymbol=%s, url=%s", stockSymbol, url))
 
 	resp, err := http.Get(url)
-	if err != nil || resp.StatusCode != 200 {
-		return nil, fmt.Errorf("stockSymbol=%s,period1=%s,period2=%s,interval=%s,url=%s,error=%s,status=%s",
-			stockSymbol, period1, period2, interval, url, err.Error(), resp.Status)
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("stockSymbol=%s,period1=%s,period2=%s,interval=%s,url=%s,statusCode=%d,status=%s,error=%v",
+			stockSymbol, period1, period2, interval, url, resp.StatusCode, resp.Status, err)
 	}
 	defer resp.Body.Close()
 
