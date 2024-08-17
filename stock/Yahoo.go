@@ -49,12 +49,12 @@ func sanitizeStockSymbol(stockSymbol string) string {
 	return stockSymbol
 }
 
-func doesFolderExist(filepath string) error {
+func DoesFolderExist(filepath string) error {
 	_, err := os.Stat(filepath)
 
 	if err != nil {
-		fmt.Println("data/csv folder does not exist.")
 		_ = os.Mkdir(filepath, 0777)
+		return fmt.Errorf("data/csv folder does not exist.")
 	}
 
 	return err

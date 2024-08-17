@@ -38,7 +38,7 @@ func ProcessFile(filename, period1, period2, interval string) {
 }
 
 func SaveToCSV(stockSymbol, period1, period2, interval string) error {
-	_ = doesFolderExist("data/csv")
+	_ = DoesFolderExist("data/csv")
 	fileName := fmt.Sprintf("%s.csv", stockSymbol)
 	records, err := GetStock(stockSymbol, period1, period2, interval)
 
