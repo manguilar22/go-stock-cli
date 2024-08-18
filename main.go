@@ -66,17 +66,19 @@ func main() {
 
 		db := databases.NewDatabase(&config)
 		err := db.Connect()
+
 		log.Println("connection status: ", err)
 
 		status, err := db.Exists(symbol)
-		log.Printf("does %s exist: %v", symbol, err)
+		log.Printf("does %s exist: status=%t, error=%v", symbol, status, err)
 
 		if status {
-			err = db.Update(symbol)
 			log.Printf("updating records in the %s column: %v", symbol, err)
+			err = db.Update(symbol)
+			log.Printf("database update: %v", err)
 		} else {
+			log.Printf("create records for %s: error=%v", symbol, err)
 			err = db.Write(symbol)
-			log.Printf("failed to create records for %s: %v", symbol, err)
 		}
 		db.Close()
 	}

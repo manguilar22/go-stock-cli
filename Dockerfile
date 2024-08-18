@@ -6,10 +6,15 @@ WORKDIR /app
 
 RUN ["mkdir", "-p", "data/csv"]
 
+# Copy go.mod and go.sum first to leverage Docker cache
+COPY go.mod go.sum ./
+
+# Download project dependencies
+RUN go mod download
+
 # Copy the local package files to the container's workspace
 COPY stock/ stock/
 COPY main.go .
-COPY go.mod .
 
 # Download project dependencies
 RUN ["go", "mod", "download"]

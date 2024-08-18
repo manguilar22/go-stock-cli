@@ -44,6 +44,15 @@ func (db *Database) Connect() error {
 		return fmt.Errorf("unable to establish a connection to the database: %w", err)
 	}
 
+	status, err := db.TableExists("stocks")
+
+	if !status {
+		log.Println("Create stocks table")
+		bytes, _ := os.ReadFile("stock/databases/stocks.sql")
+		err = db.CreateTable(string(bytes))
+		log.Fatalln("creating database table: ", err)
+	}
+
 	log.Println("Connected to the database successfully")
 	return nil
 }
@@ -111,7 +120,21 @@ func (db *Database) Update(symbol string) error {
 		log.Printf("failed to update %s from the database: %w", symbol, err)
 	}
 
-	// TODO: add check to not update unnecessarily when period2 or date match.
+	currentPeriod2 := records[1][2]
+
+	period2CheckSql := fmt.Sprintf("SELECT period2 FROM stocks WHERE symbol = '%s' LIMIT 1", symbol)
+	var period2CheckValue string
+
+	err = db.pool.QueryRow(context.Background(), period2CheckSql).Scan(&period2CheckValue)
+
+	if err != nil {
+		log.Println("failed to check if period2 is the same: ", period2CheckSql)
+	}
+
+	if currentPeriod2 == period2CheckValue {
+		return fmt.Errorf("the %s symbol does not need an update", symbol)
+	}
+
 	currentSymbol := records[1][0]
 	sqlString := fmt.Sprintf("DELETE FROM stocks WHERE symbol = '%s'", currentSymbol)
 	log.Println("SQL STATEMENT: ", sqlString)
@@ -142,7 +165,7 @@ func (db *Database) Write(symbol string) error {
 
 	stockFile, err := os.Stat(filePath)
 	if err != nil {
-		return fmt.Errorf("data/csv/%s.csv does not exist.")
+		return fmt.Errorf("%s does not exist.", filePath)
 	}
 
 	log.Printf("%s symbol exists with %s permissions", symbol, stockFile.Mode().String())
