@@ -38,15 +38,17 @@ func ProcessFile(filename, period1, period2, interval string) {
 }
 
 func SaveToCSV(stockSymbol, period1, period2, interval string) error {
-	_ = DoesFolderExist("data/csv")
-	fileName := fmt.Sprintf("%s.csv", stockSymbol)
+	directory, _ := os.Getwd()
+	var datadir string = fmt.Sprintf("%s/data/csv", directory)
+
+	_ = DoesFolderExist(datadir)
 	records, err := GetStock(stockSymbol, period1, period2, interval)
 
 	if err != nil {
 		return fmt.Errorf("(NYSE:%s) does not exist: %s", stockSymbol, err.Error())
 	}
 
-	var filepath string = fmt.Sprintf("data/csv/%s", fileName)
+	var filepath string = fmt.Sprintf("%s/%s.csv", datadir, stockSymbol)
 	file, err := os.Create(filepath)
 	if err != nil {
 		return err
