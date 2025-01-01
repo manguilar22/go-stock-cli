@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 )
 
 var symbol string
@@ -23,9 +24,10 @@ var dbUser string
 var dbPassword string
 
 func init() {
+	today := time.Now().Unix()
 	flag.StringVar(&symbol, "symbol", "", "Stock Ticker Symbol")
 	flag.StringVar(&period1, "period1", "", "Start timestamp UNIX")
-	flag.StringVar(&period2, "period2", "", "End Timestamp UNIX")
+	flag.StringVar(&period2, "period2", strconv.Itoa(int(today)), "End Timestamp UNIX")
 	flag.StringVar(&interval, "interval", "", "Time Interval")
 	flag.StringVar(&filename, "filename", "", "JSON Filename")
 	flag.BoolVar(&parallel, "parallel", false, "Process files in parallel")
