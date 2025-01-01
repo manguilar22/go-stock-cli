@@ -49,6 +49,8 @@ func SaveToCSV(stockSymbol, period1, period2, interval string) error {
 	}
 
 	var filepath string = fmt.Sprintf("%s/%s.csv", datadir, stockSymbol)
+	log.Printf("Saving %s in %s", stockSymbol, filepath)
+
 	file, err := os.Create(filepath)
 	if err != nil {
 		return err
