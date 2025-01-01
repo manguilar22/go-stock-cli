@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-func ProcessFile(filename, period1, period2, interval string) {
+func ProcessFile(filename, period1, period2, interval string, parallelStatus bool) {
 	fileData, err := os.ReadFile(filename)
 
 	if err != nil {
@@ -19,21 +19,32 @@ func ProcessFile(filename, period1, period2, interval string) {
 	var data []interface{}
 	_ = json.Unmarshal(fileData, &data)
 
-	var wg sync.WaitGroup
-	for _, record := range data {
-		wg.Add(1)
+	if parallelStatus {
+		var wg sync.WaitGroup
+		for _, record := range data {
+			wg.Add(1)
 
-		symbol := record.(map[string]interface{})["symbol"].(string)
+			symbol := record.(map[string]interface{})["symbol"].(string)
 
-		go func() {
-			defer wg.Done()
+			go func() {
+				defer wg.Done()
+				err := SaveToCSV(symbol, period1, period2, interval)
+
+				if err != nil {
+					log.Printf("Error processing file: filename=%s error=%s", filename, err.Error())
+				}
+			}()
+			wg.Wait()
+		}
+	} else {
+		for _, record := range data {
+			symbol := record.(map[string]interface{})["symbol"].(string)
+
 			err := SaveToCSV(symbol, period1, period2, interval)
-
 			if err != nil {
 				log.Printf("Error processing file: filename=%s error=%s", filename, err.Error())
 			}
-		}()
-		wg.Wait()
+		}
 	}
 }
 
@@ -86,4 +97,15 @@ func SaveToCSV(stockSymbol, period1, period2, interval string) error {
 	}
 
 	return nil
+}
+
+func DoesFolderExist(filepath string) error {
+	_, err := os.Stat(filepath)
+
+	if err != nil {
+		_ = os.Mkdir(filepath, 0777)
+		return fmt.Errorf("csv folder does not exist.")
+	}
+
+	return err
 }

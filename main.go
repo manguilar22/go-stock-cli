@@ -15,6 +15,7 @@ var period1 string
 var period2 string
 var interval string
 var filename string
+var parallel bool
 var dbHost string
 var dbPort string
 var dbDatabase string
@@ -27,6 +28,7 @@ func init() {
 	flag.StringVar(&period2, "period2", "", "End Timestamp UNIX")
 	flag.StringVar(&interval, "interval", "", "Time Interval")
 	flag.StringVar(&filename, "filename", "", "JSON Filename")
+	flag.BoolVar(&parallel, "parallel", false, "Process files in parallel")
 	flag.StringVar(&dbHost, "host", "", "Database hostname")
 	flag.StringVar(&dbPort, "port", "", "Database port")
 	flag.StringVar(&dbDatabase, "database", "", "Database name")
@@ -42,11 +44,12 @@ func main() {
 	}
 
 	if filename != "" && period1 != "" && period2 != "" && interval != "" {
-		log.Printf("filename=%s,period1=%s,period2=%s,interal=%s", filename, period1, period2, interval)
-		stock.ProcessFile(filename, period1, period2, interval)
+		log.Printf("arguments: -filename %s -period1 %s -period2 %s -interval %s -parallel %t", filename, period1, period2, interval, parallel)
+		stock.ProcessFile(filename, period1, period2, interval, parallel)
 	}
 
 	if symbol != "" && period1 != "" && period2 != "" && interval != "" {
+		log.Printf("arguments: -symbol %s -period1 %s -period2 %s -interval %s", symbol, period1, period2, interval)
 		err := stock.SaveToCSV(symbol, period1, period2, interval)
 		if err != nil {
 			log.Println(err)

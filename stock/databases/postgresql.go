@@ -5,7 +5,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/manguilar22/go-stock-cli/stock"
 	"log"
 	"os"
 	"strconv"
@@ -158,10 +157,8 @@ func (db *Database) Update(symbol string) error {
 }
 
 func (db *Database) Write(symbol string) error {
-	pathExists := stock.DoesFolderExist("data/csv")
-	log.Println("data/csv directory status: ", pathExists)
-
-	var filePath string = fmt.Sprintf("data/csv/%s.csv", symbol)
+	directory, _ := os.Getwd()
+	var filePath string = fmt.Sprintf("%s/data/csv/%s.csv", directory, symbol)
 
 	stockFile, err := os.Stat(filePath)
 	if err != nil {

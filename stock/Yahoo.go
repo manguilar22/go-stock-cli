@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -34,7 +33,11 @@ func GetStock(stockSymbol, period1, period2, interval string) ([]StockData, erro
 
 	log.Println(fmt.Sprintf("symbol=%s, url=%s", stockSymbol, url))
 
-	resp, _ := http.Get(url)
+	resp, err := http.Get(url)
+
+	if err != nil {
+		return nil, fmt.Errorf("unable to perform GET request: %+v", err)
+	}
 
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("stockSymbol=%s,statusCode=%d,status=%s,url=%s",
@@ -102,15 +105,4 @@ func sanitizeStockSymbol(stockSymbol string) string {
 		return newString
 	}
 	return stockSymbol
-}
-
-func DoesFolderExist(filepath string) error {
-	_, err := os.Stat(filepath)
-
-	if err != nil {
-		_ = os.Mkdir(filepath, 0777)
-		return fmt.Errorf("data/csv folder does not exist.")
-	}
-
-	return err
 }
